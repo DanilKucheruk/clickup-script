@@ -353,7 +353,7 @@ def create_clickup_task(name, description, assignees, priority,status, date_crea
     }
     data = {
         "name": name, 
-        "description": description, 
+        "markdown_content": description, 
         "assignees": assignees, 
         "priority": priority,
         "status" : status,
@@ -378,7 +378,7 @@ def create_clickup_subtask(parent_task_id, task_name, task_description, clickup_
     headers = {'Authorization': CLICKUP_API_KEY, 'Content-Type': 'application/json'}
     data = {
         "name": task_name, 
-        "description": task_description, 
+        "markdown_content": task_description, 
         "assignees": clickup_assign_ids, 
         "priority": bitrix_priority,
         "status" : status,

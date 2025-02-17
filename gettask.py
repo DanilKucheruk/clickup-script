@@ -40,7 +40,7 @@ def get_task_comments(task_id):
 
 
 if __name__ == "__main__":
-    task_id = 61945  # ID задачи
+    task_id = 59662  # ID задачи
     task_details = get_task_details(task_id)
     task_comments = get_task_comments(task_id)
     
