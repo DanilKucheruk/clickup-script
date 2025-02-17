@@ -1,0 +1,38 @@
+[
+    {
+        "POST_MESSAGE_HTML": null,
+        "ID": "461746",
+        "AUTHOR_ID": "293",
+        "AUTHOR_NAME": "Павел Юрьев",
+        "AUTHOR_EMAIL": "",
+        "POST_DATE": "2024-12-26T15:44:31+03:00",
+        "POST_MESSAGE": "Задача с контролем после завершения.\n[USER=334]Данил Кучерук[/USER], вы назначены исполнителем.\n[USER=1]Иван Жуков[/USER], [USER=6]Мария Новикова[/USER], вы добавлены наблюдателем."
+    },
+    {
+        "POST_MESSAGE_HTML": null,
+        "ID": "474861",
+        "AUTHOR_ID": "293",
+        "AUTHOR_NAME": "Павел Юрьев",
+        "AUTHOR_EMAIL": "",
+        "POST_DATE": "2025-01-24T15:40:02+03:00",
+        "POST_MESSAGE": "[USER=334]Данил Кучерук[/USER], задача почти просрочена.\nЗавершите задачу или передвиньте срок в течение суток, иначе [URL=/company/personal/user/334/tasks/effective/]эффективность[/URL] будет снижена."
+    },
+    {
+        "POST_MESSAGE_HTML": null,
+        "ID": "475202",
+        "AUTHOR_ID": "293",
+        "AUTHOR_NAME": "Павел Юрьев",
+        "AUTHOR_EMAIL": "",
+        "POST_DATE": "2025-01-25T15:40:02+03:00",
+        "POST_MESSAGE": "[USER=334]Данил Кучерук[/USER], задача просрочена, [URL=/company/personal/user/334/tasks/effective/]эффективность[/URL] снижена.\nЗавершите задачу или передвиньте срок."
+    },
+    {
+        "POST_MESSAGE_HTML": null,
+        "ID": "475203",
+        "AUTHOR_ID": "293",
+        "AUTHOR_NAME": "Павел Юрьев",
+        "AUTHOR_EMAIL": "",
+        "POST_DATE": "2025-01-25T15:40:52+03:00",
+        "POST_MESSAGE": "Крайний срок изменен на: 25 февраля, 15:40"
+    }
+]

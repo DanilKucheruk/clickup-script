@@ -1,0 +1,460 @@
+{
+  "nodeId": 0,
+  "fields": {
+    "id": null,
+    "copiedId": null,
+    "entityId": null,
+    "userId": 334,
+    "createdBy": null,
+    "parentId": null,
+    "title": "",
+    "sortIndex": null,
+    "displaySortIndex": "",
+    "isComplete": false,
+    "isImportant": false,
+    "completedCount": 0,
+    "members": [],
+    "attachments": []
+  },
+  "action": [],
+  "descendants": [
+    {
+      "nodeId": 1,
+      "fields": {
+        "id": 35191,
+        "copiedId": null,
+        "entityId": 61945,
+        "userId": 334,
+        "createdBy": 293,
+        "parentId": 0,
+        "title": "Чек-лист 1",
+        "sortIndex": 0,
+        "displaySortIndex": "",
+        "isComplete": false,
+        "isImportant": false,
+        "completedCount": 0,
+        "members": [],
+        "attachments": []
+      },
+      "action": {
+        "modify": true,
+        "remove": true,
+        "toggle": true,
+        "add": true,
+        "addAccomplice": true
+      },
+      "descendants": [
+        {
+          "nodeId": 2,
+          "fields": {
+            "id": 35192,
+            "copiedId": null,
+            "entityId": 61945,
+            "userId": 334,
+            "createdBy": 293,
+            "parentId": 35191,
+            "title": "Web",
+            "sortIndex": 0,
+            "displaySortIndex": "1",
+            "isComplete": false,
+            "isImportant": false,
+            "completedCount": 0,
+            "members": [],
+            "attachments": []
+          },
+          "action": {
+            "modify": true,
+            "remove": true,
+            "toggle": true,
+            "add": true,
+            "addAccomplice": true
+          },
+          "descendants": [
+            {
+              "nodeId": 3,
+              "fields": {
+                "id": 35193,
+                "copiedId": null,
+                "entityId": 61945,
+                "userId": 334,
+                "createdBy": 293,
+                "parentId": 35192,
+                "title": "Кабинет",
+                "sortIndex": 0,
+                "displaySortIndex": "1.1",
+                "isComplete": false,
+                "isImportant": false,
+                "completedCount": 0,
+                "members": [],
+                "attachments": []
+              },
+              "action": {
+                "modify": true,
+                "remove": true,
+                "toggle": true,
+                "add": true,
+                "addAccomplice": true
+              },
+              "descendants": []
+            },
+            {
+              "nodeId": 4,
+              "fields": {
+                "id": 35194,
+                "copiedId": null,
+                "entityId": 61945,
+                "userId": 334,
+                "createdBy": 293,
+                "parentId": 35192,
+                "title": "Сервис авторизации",
+                "sortIndex": 1,
+                "displaySortIndex": "1.2",
+                "isComplete": false,
+                "isImportant": false,
+                "completedCount": 0,
+                "members": [],
+                "attachments": []
+              },
+              "action": {
+                "modify": true,
+                "remove": true,
+                "toggle": true,
+                "add": true,
+                "addAccomplice": true
+              },
+              "descendants": []
+            },
+            {
+              "nodeId": 5,
+              "fields": {
+                "id": 35195,
+                "copiedId": null,
+                "entityId": 61945,
+                "userId": 334,
+                "createdBy": 293,
+                "parentId": 35192,
+                "title": "Мерчант",
+                "sortIndex": 2,
+                "displaySortIndex": "1.3",
+                "isComplete": false,
+                "isImportant": false,
+                "completedCount": 0,
+                "members": [],
+                "attachments": []
+              },
+              "action": {
+                "modify": true,
+                "remove": true,
+                "toggle": true,
+                "add": true,
+                "addAccomplice": true
+              },
+              "descendants": []
+            },
+            {
+              "nodeId": 6,
+              "fields": {
+                "id": 35196,
+                "copiedId": null,
+                "entityId": 61945,
+                "userId": 334,
+                "createdBy": 293,
+                "parentId": 35192,
+                "title": "Сокет",
+                "sortIndex": 3,
+                "displaySortIndex": "1.4",
+                "isComplete": false,
+                "isImportant": false,
+                "completedCount": 0,
+                "members": [],
+                "attachments": []
+              },
+              "action": {
+                "modify": true,
+                "remove": true,
+                "toggle": true,
+                "add": true,
+                "addAccomplice": true
+              },
+              "descendants": []
+            }
+          ]
+        },
+        {
+          "nodeId": 3,
+          "fields": {
+            "id": 35197,
+            "copiedId": null,
+            "entityId": 61945,
+            "userId": 334,
+            "createdBy": 293,
+            "parentId": 35191,
+            "title": "Gates",
+            "sortIndex": 1,
+            "displaySortIndex": "2",
+            "isComplete": false,
+            "isImportant": false,
+            "completedCount": 1,
+            "members": [],
+            "attachments": []
+          },
+          "action": {
+            "modify": true,
+            "remove": true,
+            "toggle": true,
+            "add": true,
+            "addAccomplice": true
+          },
+          "descendants": [
+            {
+              "nodeId": 4,
+              "fields": {
+                "id": 35198,
+                "copiedId": null,
+                "entityId": 61945,
+                "userId": 334,
+                "createdBy": 293,
+                "parentId": 35197,
+                "title": "Ротор",
+                "sortIndex": 0,
+                "displaySortIndex": "2.1",
+                "isComplete": false,
+                "isImportant": false,
+                "completedCount": 0,
+                "members": [],
+                "attachments": []
+              },
+              "action": {
+                "modify": true,
+                "remove": true,
+                "toggle": true,
+                "add": true,
+                "addAccomplice": true
+              },
+              "descendants": []
+            },
+            {
+              "nodeId": 5,
+              "fields": {
+                "id": 35210,
+                "copiedId": null,
+                "entityId": 61945,
+                "userId": 334,
+                "createdBy": 293,
+                "parentId": 35197,
+                "title": "Мульти-Генератор",
+                "sortIndex": 1,
+                "displaySortIndex": "2.2",
+                "isComplete": true,
+                "isImportant": false,
+                "completedCount": 0,
+                "members": [],
+                "attachments": []
+              },
+              "action": {
+                "modify": true,
+                "remove": true,
+                "toggle": true,
+                "add": true,
+                "addAccomplice": true
+              },
+              "descendants": []
+            },
+            {
+              "nodeId": 6,
+              "fields": {
+                "id": 35199,
+                "copiedId": null,
+                "entityId": 61945,
+                "userId": 334,
+                "createdBy": 293,
+                "parentId": 35197,
+                "title": "Микросервисы",
+                "sortIndex": 2,
+                "displaySortIndex": "2.3",
+                "isComplete": false,
+                "isImportant": false,
+                "completedCount": 0,
+                "members": [],
+                "attachments": []
+              },
+              "action": {
+                "modify": true,
+                "remove": true,
+                "toggle": true,
+                "add": true,
+                "addAccomplice": true
+              },
+              "descendants": [
+                {
+                  "nodeId": 7,
+                  "fields": {
+                    "id": 35200,
+                    "copiedId": null,
+                    "entityId": 61945,
+                    "userId": 334,
+                    "createdBy": 293,
+                    "parentId": 35199,
+                    "title": "Aml",
+                    "sortIndex": 0,
+                    "displaySortIndex": "2.3.1",
+                    "isComplete": false,
+                    "isImportant": false,
+                    "completedCount": 0,
+                    "members": [],
+                    "attachments": []
+                  },
+                  "action": {
+                    "modify": true,
+                    "remove": true,
+                    "toggle": true,
+                    "add": true,
+                    "addAccomplice": true
+                  },
+                  "descendants": []
+                },
+                {
+                  "nodeId": 8,
+                  "fields": {
+                    "id": 35201,
+                    "copiedId": null,
+                    "entityId": 61945,
+                    "userId": 334,
+                    "createdBy": 293,
+                    "parentId": 35199,
+                    "title": "Loki",
+                    "sortIndex": 1,
+                    "displaySortIndex": "2.3.2",
+                    "isComplete": false,
+                    "isImportant": false,
+                    "completedCount": 0,
+                    "members": [],
+                    "attachments": []
+                  },
+                  "action": {
+                    "modify": true,
+                    "remove": true,
+                    "toggle": true,
+                    "add": true,
+                    "addAccomplice": true
+                  },
+                  "descendants": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nodeId": 4,
+          "fields": {
+            "id": 35202,
+            "copiedId": null,
+            "entityId": 61945,
+            "userId": 334,
+            "createdBy": 293,
+            "parentId": 35191,
+            "title": "Processing",
+            "sortIndex": 2,
+            "displaySortIndex": "3",
+            "isComplete": false,
+            "isImportant": false,
+            "completedCount": 0,
+            "members": [],
+            "attachments": []
+          },
+          "action": {
+            "modify": true,
+            "remove": true,
+            "toggle": true,
+            "add": true,
+            "addAccomplice": true
+          },
+          "descendants": [
+            {
+              "nodeId": 5,
+              "fields": {
+                "id": 35203,
+                "copiedId": null,
+                "entityId": 61945,
+                "userId": 334,
+                "createdBy": 293,
+                "parentId": 35202,
+                "title": "Процессинг",
+                "sortIndex": 0,
+                "displaySortIndex": "3.1",
+                "isComplete": false,
+                "isImportant": false,
+                "completedCount": 0,
+                "members": [],
+                "attachments": []
+              },
+              "action": {
+                "modify": true,
+                "remove": true,
+                "toggle": true,
+                "add": true,
+                "addAccomplice": true
+              },
+              "descendants": []
+            }
+          ]
+        },
+        {
+          "nodeId": 5,
+          "fields": {
+            "id": 35204,
+            "copiedId": null,
+            "entityId": 61945,
+            "userId": 334,
+            "createdBy": 293,
+            "parentId": 35191,
+            "title": "Dev-Ops",
+            "sortIndex": 3,
+            "displaySortIndex": "4",
+            "isComplete": false,
+            "isImportant": false,
+            "completedCount": 0,
+            "members": [],
+            "attachments": []
+          },
+          "action": {
+            "modify": true,
+            "remove": true,
+            "toggle": true,
+            "add": true,
+            "addAccomplice": true
+          },
+          "descendants": [
+            {
+              "nodeId": 6,
+              "fields": {
+                "id": 35205,
+                "copiedId": null,
+                "entityId": 61945,
+                "userId": 334,
+                "createdBy": 293,
+                "parentId": 35204,
+                "title": "Pinger",
+                "sortIndex": 0,
+                "displaySortIndex": "4.1",
+                "isComplete": false,
+                "isImportant": false,
+                "completedCount": 0,
+                "members": [],
+                "attachments": []
+              },
+              "action": {
+                "modify": true,
+                "remove": true,
+                "toggle": true,
+                "add": true,
+                "addAccomplice": true
+              },
+              "descendants": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
