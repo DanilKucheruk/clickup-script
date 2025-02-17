@@ -173,7 +173,7 @@ def send_comment_to_clickup(task_id, comment_parts_with_dates, mentions):
     url = f"https://api.clickup.com/api/v2/task/{task_id}/comment"
     
     headers = {
-        'Authorization': 'pk_87773460_IA6NSWKD8W9PLWU480KIDV4ED6YATJNU',  # замените на ваш API-ключ
+        'Authorization': 'pk_87773460_IA6NSWKD8W9PLWU480KIDV4ED6YATJNU',
         'Content-Type': 'application/json'
     }
     # Формируем данные для отправки
@@ -185,6 +185,7 @@ def send_comment_to_clickup(task_id, comment_parts_with_dates, mentions):
     
     try:
         response = requests.post(url, headers=headers, json=data)
+        print(f"API Response: {response.status_code} - {response.text}")
         response.raise_for_status()  # Проверка на успешность запроса (200 OK)
         print(f"Комментарий успешно отправлен для задачи {task_id}")
     except requests.exceptions.RequestException as e:
