@@ -1,7 +1,7 @@
 import re
 import uuid
 import requests
-
+from get_link_to_image import get_link_to_image
 # Словарь для маппинга имен пользователей на их user_id в ClickUp.
 BITRIX_TO_CLICKUP_USERS = {
     "Мария Новикова": 48467541,
@@ -65,7 +65,6 @@ def extract_mentions(comment):
     
     return mentions, comment_parts
 
-import re
 
 def extract_dates_and_format(comment_parts):
     """Обработка и форматирование дат в комментарии."""
@@ -119,53 +118,173 @@ def extract_dates_and_format(comment_parts):
     return comment_parts_with_dates
 
 
+def process_code_and_tables(comment_parts):
+    """Обрабатывает код и таблицы в комментарии."""
+    processed_parts = []
+    
+    for part in comment_parts:
+        if "text" in part:
+            text = part["text"]
+            
+            # Обработка кода - удаляем теги [CODE] и делаем текст серым
+            code_pattern = r'\[CODE\](.*?)\[/CODE\]'
+            code_matches = re.finditer(code_pattern, text, re.DOTALL)
+            last_end = 0
+            
+            has_code = False
+            for match in code_matches:
+                has_code = True
+                start, end = match.span()
+                # Добавляем текст до кода
+                if start > last_end:
+                    processed_parts.append({
+                        "text": text[last_end:start],
+                        "attributes": part.get("attributes", {})
+                    })
+                
+                # Добавляем код с серым фоном
+                code_text = match.group(1).strip()
+                processed_parts.append({
+                    "text": code_text,
+                    "attributes": {"background-class": "grey"}
+                })
+                last_end = end
+            
+            # Добавляем оставшийся текст
+            if not has_code:
+                # Удаляем теги таблиц
+                text = re.sub(r'\[/?(?:TABLE|TR|TD)\]', '', text)
+                processed_parts.append({
+                    "text": text,
+                    "attributes": part.get("attributes", {})
+                })
+            elif last_end < len(text):
+                remaining_text = text[last_end:]
+                remaining_text = re.sub(r'\[/?(?:TABLE|TR|TD)\]', '', remaining_text)
+                processed_parts.append({
+                    "text": remaining_text,
+                    "attributes": part.get("attributes", {})
+                })
+        else:
+            processed_parts.append(part)
+            
+    return processed_parts
+
+def process_disk_file_ids(comment_parts):
+    """Обрабатывает строку [DISK FILE ID=n328528] и возвращает ссылку в комментарии."""
+    updated_parts = []
+    
+    # Регулярное выражение для поиска [DISK FILE ID=n328528]
+    disk_file_pattern = r'\[DISK FILE ID=n(\d+)\]'
+
+    for part in comment_parts:
+        if 'text' in part:
+            text = part['text']
+            # Найдем все вхождения шаблона
+            matches = re.finditer(disk_file_pattern, text)
+            
+            # Если находим [DISK FILE ID=n328528], извлекаем ID и получаем ссылку
+            last_end = 0
+            for match in matches:
+                start, end = match.span()
+                # Добавляем текст до [DISK FILE ID=n328528]
+                if start > last_end:
+                    updated_parts.append({
+                        "text": text[last_end:start],
+                        "attributes": part.get("attributes", {})
+                    })
+                
+                # Извлекаем ID файла
+                file_id = match.group(1)
+                
+                # Составляем ссылку
+                link = get_link_to_image(file_id)
+
+                # Заменяем пробелы на '%'
+                if link:
+                    link = link.replace(" ", "%20")
+                    updated_parts.append({
+                        "text": link,
+                        "attributes": {}
+                    })
+                else:
+                    updated_parts.append({
+                        "text": "[Ошибка получения ссылки]",
+                        "attributes": {}
+                    })
+                
+                last_end = end
+            
+            # Добавляем оставшийся текст после последнего [DISK FILE ID=n328528]
+            if last_end < len(text):
+                updated_parts.append({
+                    "text": text[last_end:],
+                    "attributes": part.get("attributes", {})
+                })
+        else:
+            updated_parts.append(part)
+    
+    return updated_parts
+
+
+
+def remove_bbcode(text):
+    """Удаление всех BB-кодов из текста."""
+    # Удаляем все BB-коды (например, [B], [I], [U], [CODE], [TABLE] и т.д.)
+    clean_text = re.sub(r'\[.*?\]', '', text)  # Удаляет все теги вида [B], [/B] и т.д.
+    return clean_text
 def process_comment_with_quotes(comment_parts_with_dates):
     """Обрабатывает комментарий с цитатами, начиная с 'написал(а):' и добавляет атрибуты к цитатам."""
     
+    # Сначала обрабатываем код и таблицы
+    comment_part = process_disk_file_ids(comment_parts_with_dates)
+    comment_parts = process_code_and_tables(comment_part)
+    
     # Шаблон для нахождения "написал(а):"
-    write_pattern = r"^\|\s*(?!\/n\/n).+$|написал\(а\):|написала:|написал:|_____"
-
+    write_pattern = r"^\|\s*(?!\/n\/n).+$|написал\(а\):|написала:|написал:|"
     
     comment_parts_with_q = []
     
-    start = 0  # Начало для извлечения части текста до даты
-    
-    for part in comment_parts_with_dates:
+    for part in comment_parts:
         if "text" in part:
             text = part["text"]
             date_matches = re.findall(write_pattern, text, re.MULTILINE)
             
-            # Если есть даты, разбиваем текст на части
+            # Если есть совпадения, разбиваем текст на части
             if date_matches:
                 last_end = 0
                 for date in date_matches:
                     date_position = text.find(date, last_end)
-                    # Добавляем текст до даты
+                    # Добавляем текст до совпадения
                     if date_position > last_end:
                         comment_parts_with_q.append({
                             "text": text[last_end:date_position],
-                            "attributes": {}
+                            "attributes": part.get("attributes", {})
                         })
 
-                    # Добавляем саму дату как тег
+                    # Добавляем само совпадение
                     comment_parts_with_q.append({
                         "text": date,
                         "attributes": {"background-class": "grey", "italic": True}
                     })
 
-                    # Обновляем last_end для следующего фрагмента текста
                     last_end = date_position + len(date)
 
-                # Добавляем оставшийся текст после последней даты
+                # Добавляем оставшийся текст
                 if last_end < len(text):
                     comment_parts_with_q.append({
                         "text": text[last_end:], 
-                        "attributes": {}
+                        "attributes": part.get("attributes", {})
                     })
             else:
-                # Если дат не найдено, просто добавляем этот фрагмент
+                # Если совпадений нет, добавляем часть как есть
                 comment_parts_with_q.append(part)
+        else:
+            comment_parts_with_q.append(part)
 
+    for part in comment_parts_with_q:
+        if "text" in part:
+            part["text"] = remove_bbcode(part["text"])
     return comment_parts_with_q
 
 def send_comment_to_clickup(task_id, comment_parts_with_dates, mentions):

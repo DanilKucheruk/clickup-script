@@ -5,7 +5,7 @@ from datetime import datetime
 from checklist_transfer import add_checklist_to_task
 
 from commets import add_comment_with_mentions
-from description import trancfer_descriprion
+from description import transfer_description
 from checklist_transfer import add_checklist_to_task
 
 # 🔹 Ваши API ключи
@@ -18,6 +18,7 @@ FILTER_PATTERNS = [
     r'задача почти просрочена\.',
     r'задача\s+просрочена',
     r'Крайний срок изменен на',
+    r'Проект задачи изменен на'
 
 
 ]
@@ -134,7 +135,7 @@ def get_bitrix_comments(task_id):
         return comments  
         
     except requests.exceptions.RequestException as e:
-        print(f"Ошибка при получении комментариев Bitrix для задачи {task_id}: {e}")
+        # print(f"Ошибка при получении комментариев Bitrix для задачи {task_id}: {e}")
         return []
 
 def add_clickup_comment(task_id, comment):
@@ -157,7 +158,7 @@ def get_bitrix_task(task_id):
             print(f"Задача {task_id} не найдена в Bitrix24.")
         return task
     except requests.exceptions.RequestException as e:
-        print(f"Ошибка при получении задачи {task_id} из Bitrix: {e}")
+        # print(f"Ошибка при получении задачи {task_id} из Bitrix: {e}")
         return None
 
 
@@ -191,14 +192,14 @@ def get_bitrix_tags(task_id):
                     elif isinstance(tag_data, str):
                         tags_list.append(tag_data)
             
-            print(f"Теги задачи {task_id}: {tags_list}")
+            # print(f"Теги задачи {task_id}: {tags_list}")
             return tags_list
         else:
-            print(f"Задача {task_id} не содержит тегов.")
+            # print(f"Задача {task_id} не содержит тегов.")
             return []
     
     except Exception as e:
-        print(f"Ошибка при получении тегов для задачи {task_id}: {e}")
+        # print(f"Ошибка при получении тегов для задачи {task_id}: {e}")
         return []
 
 # 🔹 Маппинг ответственного из Bitrix24 на ClickUp
@@ -229,8 +230,8 @@ def map_assignees(bitrix_task):
             clickupid.append(MAP_USER_ID_BITRIX_TO_CLICKUP[bitrix_user_id])
     
     # Печатаем результат
-    print("Mapped Assignees (ClickUp IDs):")
-    print(clickupid)
+    # print("Mapped Assignees (ClickUp IDs):")
+    # print(clickupid)
     
     return clickupid
 
@@ -238,35 +239,35 @@ def map_assignees(bitrix_task):
 def map_watchers(bitrix_task):
     clickup_auditor_ids = set()  # Используем set для уникальных ID
     
-    print("DEBUG: auditorsData type:", type(bitrix_task.get('auditorsData')))
-    print("DEBUG: auditorsData value:", bitrix_task.get('auditorsData'))
-    print("DEBUG: auditors type:", type(bitrix_task.get('auditors')))
-    print("DEBUG: auditors value:", bitrix_task.get('auditors'))
+    # print("DEBUG: auditorsData type:", type(bitrix_task.get('auditorsData')))
+    # print("DEBUG: auditorsData value:", bitrix_task.get('auditorsData'))
+    # print("DEBUG: auditors type:", type(bitrix_task.get('auditors')))
+    # print("DEBUG: auditors value:", bitrix_task.get('auditors'))
 
     # Проверяем наличие auditorsData (словарь с данными аудиторов)
     auditorsData = bitrix_task.get('auditorsData')
     if auditorsData and isinstance(auditorsData, dict):
-        print("DEBUG: Processing auditorsData as dict")
+        # print("DEBUG: Processing auditorsData as dict")
         for auditor_id_str in auditorsData:
             auditor_id = int(auditor_id_str)  # Используем ID из ключа словаря
-            print(f"DEBUG: Processing auditor_id {auditor_id} from auditorsData")
+            # print(f"DEBUG: Processing auditor_id {auditor_id} from auditorsData")
             if auditor_id in MAP_USER_ID_BITRIX_TO_CLICKUP:
                 clickup_auditor_ids.add(MAP_USER_ID_BITRIX_TO_CLICKUP[auditor_id])
     
     # Проверяем наличие auditors (список ID аудиторов)
     auditors = bitrix_task.get('auditors')
     if auditors and isinstance(auditors, list):
-        print("DEBUG: Processing auditors as list")
+        # print("DEBUG: Processing auditors as list")
         for auditor_id_str in auditors:
             auditor_id = int(auditor_id_str)
-            print(f"DEBUG: Processing auditor_id {auditor_id} from auditors list")
+            # print(f"DEBUG: Processing auditor_id {auditor_id} from auditors list")
             if auditor_id in MAP_USER_ID_BITRIX_TO_CLICKUP:
                 clickup_auditor_ids.add(MAP_USER_ID_BITRIX_TO_CLICKUP[auditor_id])
     
     # Печатаем результат
-    print("Mapped Watchers (ClickUp IDs):")
+    # print("Mapped Watchers (ClickUp IDs):")
     result = list(clickup_auditor_ids)  # Преобразуем обратно в список
-    print(result)
+    # print(result)
     
     return result
 
@@ -326,7 +327,7 @@ def update_task_add_watchers(task_id, watchers):
         }  
     }
 
-    print(data, task_id)
+    # print(data, task_id)
 
     try:
         # Отправка PUT запроса
@@ -363,13 +364,13 @@ def create_clickup_task(name, description, assignees, priority,status, date_crea
     }
     try:
         response = requests.post(url, headers=headers, json=data)
-        print(f"API Response: {response.status_code} - {response.text}")
+        # print(f"API Response: {response.status_code} - {response.text}")
         response.raise_for_status()
         clickup_task_id = response.json().get('id')
-        print(f"Задача создана в ClickUp: {clickup_task_id}")
+        # print(f"Задача создана в ClickUp: {clickup_task_id}")
         return clickup_task_id
     except requests.exceptions.RequestException as e:
-        print(f"Ошибка при создании задачи в ClickUp: {e}")
+        # print(f"Ошибка при создании задачи в ClickUp: {e}")
         return None
 
 # 🔹 Создание подзадачи в ClickUp
@@ -390,10 +391,10 @@ def create_clickup_subtask(parent_task_id, task_name, task_description, clickup_
         # Здесь мы передаем родительский ID в запрос
         response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
-        print(f"✅ Подзадача создана в ClickUp: {response.json().get('id')}")
+        # print(f"✅ Подзадача создана в ClickUp: {response.json().get('id')}")
         return response.json().get('id')
     except requests.exceptions.RequestException as e:
-        print(f"Ошибка при создании подзадачи в ClickUp: {e}")
+        # print(f"Ошибка при создании подзадачи в ClickUp: {e}")
         return None
 
 # 🔹 Хеш-карта для хранения ID задач
@@ -415,41 +416,41 @@ def convert_to_timestamp(date_str):
 
 def transfer_task():
     # Получаем список всех задач Bitrix24
-    task_ids = [59662] 
+    task_ids = [63431] 
     for task_id in task_ids:
         try:
-            print(f"\n=== Начинаем обработку задачи с ID: {task_id} ===")
-            print(f"1. Получаем данные задачи из Bitrix")
+            # print(f"\n=== Начинаем обработку задачи с ID: {task_id} ===")
+            # print(f"1. Получаем данные задачи из Bitrix")
             bitrix_task = get_bitrix_task(task_id)
-            print("DEBUG: Task data:", json.dumps(bitrix_task, indent=2, ensure_ascii=False))
+            # print("DEBUG: Task data:", json.dumps(bitrix_task, indent=2, ensure_ascii=False))
             bitrix_tags = get_bitrix_tags(task_id)
             if not bitrix_task:
-                print(f"❌ Задача с ID {task_id} не найдена")
+                # print(f"❌ Задача с ID {task_id} не найдена")
                 continue
-            print(f"2. Данные задачи успешно получены")
+            # print(f"2. Данные задачи успешно получены")
 
-            print(f"3. Подготовка данных для создания задачи в ClickUp")
+            # print(f"3. Подготовка данных для создания задачи в ClickUp")
             task_name = bitrix_task['title']
-            task_description = trancfer_descriprion(bitrix_task)
+            task_description = transfer_description(bitrix_task)
             bitrix_priority = get_bitrix_priority(bitrix_task.get('priority', 4))
             bitrix_comments = get_bitrix_comments(task_id)
             # Применение к данным
             date_created = convert_to_timestamp(bitrix_task.get('createdDate'))
             deadline = convert_to_timestamp(bitrix_task.get('deadline'))
-            print(f"4. Данные подготовлены: {task_name}")
+            # print(f"4. Данные подготовлены: {task_name}")
 
-            print(f"5. Проверка на наличие родительской задачи")
+            # print(f"5. Проверка на наличие родительской задачи")
             parent_task_id = None
             if bitrix_task.get('parentId'):
                 parent_task_id = task_id_map.get(bitrix_task['parentId'])
-                print(f"   Найдена родительская задача: {parent_task_id}")
+                # print(f"   Найдена родительская задача: {parent_task_id}")
             else:
                 print(f"   Родительская задача не найдена")
 
-            print(f"6. Маппинг пользователей и статуса")
+            # print(f"6. Маппинг пользователей и статуса")
             clickup_assinged_id = map_assignees(bitrix_task)
             status = map_status(bitrix_task,bitrix_tags)
-            print(f"7. Создание задачи в ClickUp")
+            # print(f"7. Создание задачи в ClickUp")
             # Создание задачи или подзадачи в ClickUp
             try:
                 # Получаем список наблюдателей до создания задачи
@@ -457,29 +458,29 @@ def transfer_task():
                 
                 # Создаем задачу (временно все задачи создаются как независимые)
                 clickup_task_id = create_clickup_task(task_name, task_description, clickup_assinged_id, bitrix_priority, status, date_created, deadline, bitrix_tags)
-                print(f"   Задача успешно создана: {clickup_task_id}")
+                # print(f"   Задача успешно создана: {clickup_task_id}")
                 
                 # Если задача создана успешно, добавляем комментарии и наблюдателей
-                print(f"✅ Задача перенесена в ClickUp: {clickup_task_id}")
+                # print(f"✅ Задача перенесена в ClickUp: {clickup_task_id}")
                 add_task_to_map(task_id, clickup_task_id)
                 add_clickup_comment(clickup_task_id, bitrix_comments)
                 update_task_add_watchers(clickup_task_id, watchers)
                 
                 # Добавляем чеклисты, если они есть
-                print("DEBUG: Проверяем наличие чеклистов")
-                print(f"DEBUG: 'checkListTree' в bitrix_task: {'checkListTree' in bitrix_task}")
-                print("DEBUG: Все ключи в bitrix_task:", bitrix_task.keys())
+                # print("DEBUG: Проверяем наличие чеклистов")
+                # print(f"DEBUG: 'checkListTree' в bitrix_task: {'checkListTree' in bitrix_task}")
+                # print("DEBUG: Все ключи в bitrix_task:", bitrix_task.keys())
                 
                 try:
                     checklist_data = bitrix_task.get('checkListTree', [])
                     if checklist_data and clickup_task_id:
-                        print("\n=== Данные из Bitrix ===\n")
+                        # print("\n=== Данные из Bitrix ===\n")
                         with open('debug_checklist.json', 'w', encoding='utf-8') as f:
                             json.dump(checklist_data, f, indent=2, ensure_ascii=False)
-                        print(json.dumps(checklist_data, indent=2, ensure_ascii=False))
-                        print("\n=== Конец данных ===\n")
+                        # print(json.dumps(checklist_data, indent=2, ensure_ascii=False))
+                        # print("\n=== Конец данных ===\n")
                         
-                        print(f"Создаем чеклисты для задачи {clickup_task_id}...")
+                        # print(f"Создаем чеклисты для задачи {clickup_task_id}...")
                         if isinstance(checklist_data, (list, dict)):
                             add_checklist_to_task(clickup_task_id, checklist_data)
                         else:
@@ -489,14 +490,14 @@ def transfer_task():
                     else:
                         print("Чеклисты отсутствуют или пустые")
                 except Exception as e:
-                    print(f"Ошибка при обработке чеклистов: {str(e)}")
+                        print(f"Ошибка при обработке чеклистов: {str(e)}")
                 print(f"✅ Задача из Bitrix {task_id} успешно перенесена в ClickUp с ID {clickup_task_id}")
             except Exception as e:
-                print(f"❌ Ошибка при создании задачи: {str(e)}")
+                # print(f"❌ Ошибка при создании задачи: {str(e)}")
                 raise
 
         except Exception as e:
-            print(f"❌ Ошибка при обработке задачи с ID {task_id}: {e}")
+            # print(f"❌ Ошибка при обработке задачи с ID {task_id}: {e}")
             continue  # Переходим к следующей задаче, если произошла ошибка
 
 if __name__ == "__main__":

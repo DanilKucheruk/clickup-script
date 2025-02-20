@@ -74,13 +74,9 @@ def add_checklist_item(checklist_id, fields, parent_item_id=None):
     }
 
     # Логируем перед отправкой запроса
-    print(f"Отправка запроса для элемента: {checklist_item_data}")
     
     if parent_item_id:
         checklist_item_data['parent'] = parent_item_id
-        print(f"Элемент '{checklist_item_data['name']}' имеет родительский ID: {parent_item_id}")
-    else:
-        print(f"Элемент '{checklist_item_data['name']}' является корневым элементом (без родителя).")
     
     response = requests.post(url, headers=headers, json=checklist_item_data)
 
@@ -100,14 +96,14 @@ def add_checklist_item(checklist_id, fields, parent_item_id=None):
                             print(f"Элемент добавлен с ID: {item_id}")
                             return item_id
             
-            print(f"Ошибка: В ответе API отсутствует ID элемента чеклиста")
+            # print(f"Ошибка: В ответе API отсутствует ID элемента чеклиста")
             return None
                 
         except Exception as e:
-            print(f"Ошибка при обработке ответа: {e}")
+            # print(f"Ошибка при обработке ответа: {e}")
             return None
     else:
-        print(f"Ошибка API при добавлении элемента: {response.status_code} - {response.text}")
+        # print(f"Ошибка API при добавлении элемента: {response.status_code} - {response.text}")
         return None
 
 def add_checklist_to_task(task_id, checklists):
@@ -117,7 +113,6 @@ def add_checklist_to_task(task_id, checklists):
     def process_checklist(checklist_data):
         """Обрабатывает отдельный чеклист"""
         if not isinstance(checklist_data, dict):
-            print(f"Неверный формат чеклиста: {type(checklist_data)}")
             return
             
         fields = checklist_data.get('fields', {})
@@ -147,9 +142,6 @@ def add_checklist_to_task(task_id, checklists):
                     process_checklist(checklist)
             else:
                 process_checklist(checklists)
-        else:
-            print(f"Неизвестный тип данных чеклиста: {type(checklists)}")
-            
     except Exception as e:
         print(f"Критическая ошибка при обработке чеклистов: {str(e)}")
         import traceback
@@ -173,13 +165,12 @@ def create_checklist(task_id, title):
     
     try:
         response = requests.post(url, headers=headers, json=checklist_data)
-        print(f"Ответ API при создании чеклиста: {response.status_code} - {response.text}")
+        # rint(f"Ответ API при создании чеклиста: {response.status_code} - {response.text}")
         
         if response.status_code == 200:
             checklist_id = response.json().get('checklist', {}).get('id')
-            print(f"Чеклист успешно создан с ID: {checklist_id}")
             return checklist_id
-        print(f"Ошибка при создании чеклиста '{title}': {response.status_code} - {response.text}")
+        # print(f"Ошибка при создании чеклиста '{title}': {response.status_code} - {response.text}")
     except Exception as e:
         print(f"Исключение при создании чеклиста '{title}': {str(e)}")
     return None
@@ -190,13 +181,12 @@ def process_checklist_items(checklist_id, items, parent_id=None, depth=0):
         print(f"Предупреждение: Достигнута максимальная глубина вложенности")
         return
 
-    print(f"Обработка элементов чеклиста {checklist_id} (глубина: {depth}):")
-    print(f"Тип данных items: {type(items)}")
-    print(f"Содержимое items: {items}")
+    # print(f"Тип данных items: {type(items)}")
+    # print(f"Содержимое items: {items}")
 
     for sub_index, sub_item in enumerate(items, start=1):
-        print(f"Начинаем обработку элемента {sub_index} (глубина: {depth}):")
-        print(f"Содержимое sub_item: {sub_item}")
+        # print(f"Начинаем обработку элемента {sub_index} (глубина: {depth}):")
+        # print(f"Содержимое sub_item: {sub_item}")
         
         # Создаем текущий элемент
         current_item_id = process_checklist_item(
