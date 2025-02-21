@@ -1,7 +1,0 @@
-63431 - 86981b8kw
-63432 - 86981bgy1
-
-
-source venv/bin/activate && python3 task_tree.py
-
-source venv/bin/activate

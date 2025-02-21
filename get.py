@@ -1,7 +1,7 @@
 import requests
 
 BITRIX24_WEBHOOK_URL = 'https://bit.paypoint.pro/rest/334/xd11bddxxpimt63p/'
-GROUP_ID = 278  # ID вашей группы
+GROUP_ID = 279  # ID вашей группы
 
 # возвращает список ID задач с PARENT_ID = 0 для указанной группы
 def get_tasks_by_group(group_id):

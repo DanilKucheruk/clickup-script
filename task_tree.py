@@ -11,7 +11,7 @@ from release.script import transfer_task
 import time
 
 BITRIX24_WEBHOOK_URL = 'https://bit.paypoint.pro/rest/334/xd11bddxxpimt63p/'
-GROUP_ID = 278
+GROUP_ID = 279
 
 def get_task_details(task_id: str) -> Optional[Dict]:
     """Получение детальной информации о задаче

@@ -1,11 +1,14 @@
 import requests
 import json
 import re
+import time
 from datetime import datetime
 from .checklist_transfer import add_checklist_to_task
 from .commets import add_comment_with_mentions
 from .description import transfer_description
-
+from config_map_category_and_priority import BITRIX_ID_IMPORTANCE_TO_CLICKUP_PRIORITY
+from get_task_category import get_task_importance, get_task_category
+from .set_custom_field import set_custom_field
 # 🔹 Ваши API ключи
 BITRIX24_WEBHOOK_URL = 'https://bit.paypoint.pro/rest/334/ns8ufic41u9h1nla/'
 CLICKUP_API_KEY = 'pk_87773460_IA6NSWKD8W9PLWU480KIDV4ED6YATJNU'
@@ -271,15 +274,33 @@ def map_watchers(bitrix_task):
 
 
 # 🔹 Приоритеты задач: Преобразуем из Bitrix в ClickUp
-def get_bitrix_priority(priority):
-    # Убедимся, что приоритет из Bitrix24 корректно отображается в ClickUp
-    priority_map = {
-        "1": 4,  # Lowest
-        "2": 3,  # Low
-        "3": 2,  # Normal
-        "4": 1,
-    }
-    return priority_map.get(str(priority), 2)  # Default to Normal if the priority is unknown
+def get_bitrix_priority(bitrix_task):
+    bitrix_id = bitrix_task['id']
+    tags = get_bitrix_tags(bitrix_id)
+    
+    # Маппинг тегов на приоритеты ClickUp
+    # 4 - Urgent (П1)
+    # 3 - High (П2, П2+)
+    # 2 - Normal (П3, П3+)
+    # 1 - Low (П4, П4+)
+    
+    for tag in tags:
+        if tag == 'П1':
+            print(f"- Найден тег {tag}, установлен приоритет ClickUp: 4 (Urgent)")
+            return 1
+        elif tag in ['П2', 'П2+']:
+            print(f"- Найден тег {tag}, установлен приоритет ClickUp: 3 (High)")
+            return 2
+        elif tag in ['П3', 'П3+']:
+            print(f"- Найден тег {tag}, установлен приоритет ClickUp: 2 (Normal)")
+            return 3
+        elif tag in ['П4', 'П4+']:
+            print(f"- Найден тег {tag}, установлен приоритет ClickUp: 1 (Low)")
+            return 4
+    
+    # Если теги приоритета не найдены, приоритет не устанавливается
+    print("- Теги приоритета не найдены, приоритет не будет установлен")
+    return None
 
 
 
@@ -354,12 +375,15 @@ def create_clickup_task(name, description, assignees, priority,status, date_crea
         "name": name, 
         "markdown_content": description, 
         "assignees": assignees, 
-        "priority": priority,
         "status" : status,
         "start_date": date_created,
         "due_date": deadline,
         "tags": bitrix_tags
     }
+    
+    # Добавляем приоритет только если он указан
+    if priority is not None:
+        data["priority"] = priority
     try:
         response = requests.post(url, headers=headers, json=data)
         # print(f"API Response: {response.status_code} - {response.text}")
@@ -381,34 +405,160 @@ def create_clickup_subtask(parent_task_id, task_name, task_description, clickup_
     if not parent_task_id or len(parent_task_id) < 5:
         print(f"- Ошибка: Неверный формат ID родительской задачи")
         return None
-    
-    url = f'https://api.clickup.com/api/v2/list/{CLICKUP_LIST_ID}/task'
+
     headers = {'Authorization': CLICKUP_API_KEY, 'Content-Type': 'application/json'}
-    data = {
-        "name": task_name, 
-        "markdown_content": task_description, 
-        "assignees": clickup_assign_ids, 
-        "priority": bitrix_priority,
-        "status" : status,
-        "start_date": date_created,
-        "due_date": deadline,
-        "tags": bitrix_tags,
-        "parent": parent_task_id
-    }
-    try:
-        print(f"- URL: {url}")
-        response = requests.post(url, headers=headers, json=data)
-        print(f"- Код ответа: {response.status_code}")
+    
+    def get_parent_task(task_id, max_retries=3):
+        """Get parent task information from ClickUp with retries"""
+        url = f'https://api.clickup.com/api/v2/task/{task_id}'
         
-        if response.status_code != 200:
-            print(f"- Ответ сервера: {response.text}")
-            return None
-            
-        response.raise_for_status()
-        task_id = response.json().get('id')
-        print(f"- Создана подзадача с ID: {task_id}")
+        for attempt in range(max_retries):
+            try:
+                if attempt > 0:
+                    print(f"- Попытка {attempt + 1} из {max_retries}")
+                    time.sleep(2)  # Пауза между попытками
+                
+                response = requests.get(url, headers=headers, timeout=30)
+                if response.status_code == 200:
+                    return response.json()
+                elif response.status_code == 429:  # Rate limit
+                    print(f"- Превышен лимит запросов, ожидание...")
+                    time.sleep(1)
+                    continue
+                else:
+                    print(f"- Ошибка API: {response.status_code} - {response.text}")
+            except requests.exceptions.Timeout:
+                print(f"- Таймаут при получении родительской задачи")
+            except Exception as e:
+                print(f"- Ошибка при получении родительской задачи: {str(e)}")
+        
+        return None
+    
+    def find_last_valid_parent(task_id):
+        """Находит последнего валидного родителя в пределах лимита вложенности"""
+        current_id = task_id
+        path = []
+        
+        while current_id:
+            parent_info = get_parent_task(current_id)
+            if not parent_info:
+                break
+            current_id = parent_info.get('parent')
+            if current_id:
+                path.append(current_id)
+        
+        # Если глубина больше 6, возвращаем ID задачи на 6-м уровне
+        if len(path) >= 6:
+            return path[-(6+1)]  # Берем задачу на 6-м уровне
         return task_id
-    except requests.exceptions.RequestException as e:
+    
+    def try_create_subtask(parent_id, max_retries=3, level=0):
+        """Try to create a subtask under the specified parent with retries"""
+        url = f'https://api.clickup.com/api/v2/list/{CLICKUP_LIST_ID}/task'
+        data = {
+            "name": task_name, 
+            "markdown_content": task_description, 
+            "assignees": clickup_assign_ids, 
+            "status" : status,
+            "start_date": date_created,
+            "due_date": deadline,
+            "tags": bitrix_tags
+        }
+        
+        # Добавляем приоритет только если он указан
+        if bitrix_priority is not None:
+            data["priority"] = bitrix_priority
+        
+        # Добавляем parent только если он есть
+        if parent_id:
+            data["parent"] = parent_id
+        
+        for attempt in range(max_retries):
+            try:
+                if attempt > 0:
+                    print(f"- Попытка {attempt + 1} из {max_retries}")
+                    time.sleep(2)  # Пауза между попытками
+                
+                response = requests.post(url, headers=headers, json=data, timeout=30)
+                if response.status_code == 200:
+                    return response
+                elif response.status_code == 400 and "Level of nested subtasks is limited to 7" in response.text:
+                    # Если ошибка связана с лимитом вложенности, ищем последнего валидного родителя
+                    if parent_id:
+                        print("- Достигнут лимит вложенности, ищем последнего валидного родителя")
+                        last_valid_parent = find_last_valid_parent(parent_id)
+                        if last_valid_parent and last_valid_parent != parent_id:
+                            print(f"- Создаем подзадачу для родителя на допустимом уровне")
+                            return try_create_subtask(last_valid_parent, max_retries)
+                    return None
+                elif response.status_code == 429:  # Rate limit
+                    print(f"- Превышен лимит запросов, ожидание...")
+                    time.sleep(5)
+                    continue
+                else:
+                    print(f"- Ошибка API: {response.status_code} - {response.text}")
+            except requests.exceptions.Timeout:
+                print(f"- Таймаут при создании подзадачи")
+            except Exception as e:
+                print(f"- Ошибка при создании подзадачи: {str(e)}")
+        
+        return None
+    
+    try:
+        current_parent_id = parent_task_id
+        while True:
+            # Пробуем создать подзадачу
+            response = try_create_subtask(current_parent_id)
+            
+            if response is None:
+                return None
+            
+            if response.status_code == 200:
+                # Успешно создали задачу
+                task_id = response.json().get('id')
+                print(f"- Создана задача с ID: {task_id}")
+                return task_id
+            
+            error_data = response.json()
+            if error_data.get('err') == 'Level of nested subtasks is limited to 7' and error_data.get('ECODE') == 'ITEM_224':
+                print("- Превышен лимит вложенности (7 уровней)")
+                
+                # Получаем родительскую задачу
+                parent_data = get_parent_task(current_parent_id)
+                if not parent_data:
+                    print("- Не удалось получить информацию о родительской задаче")
+                    return None
+                
+                parent_of_parent = parent_data.get('parent')
+                if parent_of_parent:
+                    print(f"- Пробуем создать задачу на уровень выше (родитель: {parent_of_parent})")
+                    current_parent_id = parent_of_parent
+                    continue
+                else:
+                    print("- У родительской задачи нет родителя, создаем обычную задачу")
+                    # Создаем задачу без родителя
+                    url = f'https://api.clickup.com/api/v2/list/{CLICKUP_LIST_ID}/task'
+                    data = {
+                        "name": task_name, 
+                        "markdown_content": task_description, 
+                        "assignees": clickup_assign_ids, 
+                        "priority": bitrix_priority,
+                        "status" : status,
+                        "start_date": date_created,
+                        "due_date": deadline,
+                        "tags": bitrix_tags
+                    }
+                    response = requests.post(url, headers=headers, json=data)
+                    if response.status_code == 200:
+                        task_id = response.json().get('id')
+                        print(f"- Создана обычная задача с ID: {task_id}")
+                        return task_id
+                    break
+            else:
+                print(f"- Ошибка при создании задачи: {response.text}")
+                return None
+                
+    except Exception as e:
         print(f"- Ошибка: {str(e)}")
         if hasattr(e, 'response') and e.response is not None:
             print(f"- Текст ошибки: {e.response.text}")
@@ -466,7 +616,7 @@ def transfer_task(task_ids):
             bitrix_tags = get_bitrix_tags(task_id)
             task_name = bitrix_task['title']
             task_description = transfer_description(bitrix_task)
-            bitrix_priority = get_bitrix_priority(bitrix_task.get('priority', 4))
+            bitrix_priority = get_bitrix_priority(bitrix_task)
             bitrix_comments = get_bitrix_comments(task_id)
             date_created = convert_to_timestamp(bitrix_task.get('createdDate'))
             deadline = convert_to_timestamp(bitrix_task.get('deadline'))
@@ -504,7 +654,7 @@ def transfer_task(task_ids):
                     add_clickup_comment(clickup_task_id, bitrix_comments)
                     update_task_add_watchers(clickup_task_id, watchers)
                     create_checklist(bitrix_task, clickup_task_id)
-                    
+                    set_custom_field(clickup_task_id, task_id)
                     print(f"✅ Задача из Bitrix {task_id} успешно перенесена в ClickUp с ID {clickup_task_id}")
                 else:
                     print(f"❌ Не удалось создать задачу в ClickUp для Bitrix задачи {task_id}")
