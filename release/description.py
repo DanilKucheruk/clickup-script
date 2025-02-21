@@ -1,7 +1,7 @@
 import bbcode
 from markdownify import markdownify as md
 import re
-from get_link_to_image import get_link_to_image
+from .get_link_to_image import get_link_to_image
 
 def bbcode_to_markdown(bbcode_text):
     # Создаем парсер для BBCode
@@ -101,7 +101,7 @@ def handle_disk_file_tags(text):
             return f"[Ошибка: файл не найден с ID {file_id}]"
     
     # Заменим все теги [DISK FILE ID=n...] на ссылку
-    text = re.sub(r'\[DISK FILE ID=n(\d+)\]', disk_file_replacement, text)
+    text = re.sub(r'\[\DISK FILE ID(?:=n)?(\d+)\]', disk_file_replacement, text)
     return text
 
 def transfer_description(bitrix_task):
@@ -114,3 +114,10 @@ def transfer_description(bitrix_task):
     print(task_description)
     return task_description
 
+# Пример использования
+bitrix_task = {
+    'id': 1,
+    'description': "[SIZE=14pt]Это описание с [SIZE=16pt]вложенным текстом[/SIZE] и ещё один уровень[SIZE=15pt] здесь[/SIZE].[/SIZE]"
+}
+
+transfer_description(bitrix_task)

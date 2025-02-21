@@ -1,7 +1,7 @@
 import re
 import uuid
 import requests
-from get_link_to_image import get_link_to_image
+from .get_link_to_image import get_link_to_image
 # Словарь для маппинга имен пользователей на их user_id в ClickUp.
 BITRIX_TO_CLICKUP_USERS = {
     "Мария Новикова": 48467541,

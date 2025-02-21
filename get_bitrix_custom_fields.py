@@ -1,39 +1,63 @@
-import sys
 import requests
 
-# Конфигурация: замените на ваш домен Bitrix24 и токен вебхука
-BITRIX24_DOMAIN = 'bit.paypoint.pro'
-WEBHOOK_TOKEN = '334/ns8ufic41u9h1nla'
+BITRIX24_WEBHOOK_URL = 'https://bit.paypoint.pro/rest/334/qlhdwbxoy6zj10gy/'
 
-
-def get_task_custom_fields(task_id):
-    """
-    Получает информацию о задаче из Bitrix24 и извлекает кастомные поля.
-    """
-    url = f"https://{BITRIX24_DOMAIN}/rest/{WEBHOOK_TOKEN}/tasks.task.get"
+def get_selected_fields_for_task(task_id):
+    """Получение выбранных значений для пользовательских полей задачи."""
+    url = f"{BITRIX24_WEBHOOK_URL}task.item.userfield.getlist.json"
+    
     params = {
-        'taskId': task_id
+        'TASK_ID': task_id
     }
-    response = requests.get(url, params=params)
-    if response.ok:
+    
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        
+        # Получаем данные
         data = response.json()
-        task = data.get('result', {}).get('task', {})
-        custom_fields = {}
-        for key, value in task.items():
-            if key.startswith('UF_'):
-                custom_fields[key] = value
-        return custom_fields
-    else:
-        print(f"Ошибка: {response.status_code} - {response.text}")
+        
+        if 'result' in data:
+            user_fields = data['result']
+            print("Полные данные о полях:")
+            print(data)  # Выведем полный ответ для диагностики
+            
+            selected_values = {}
+            for field in user_fields:
+                field_name = field['FIELD_NAME']
+                # Выведем информацию о поле для диагностики
+                print(f"\nДанные для поля {field_name}:")
+                print(field)
+                
+                # Проверим наличие значений
+                if 'LIST' in field and len(field['LIST']) > 0:
+                    for item in field['LIST']:
+                        print(f"  Значение: {item['VALUE']}, по умолчанию: {item.get('DEF', 'N')}")
+                        if item.get('DEF') == 'Y':  # Значение по умолчанию
+                            selected_values[field_name] = item['VALUE']
+                            break
+                    else:
+                        selected_values[field_name] = None
+                else:
+                    selected_values[field_name] = None
+
+            return selected_values
+        
+        else:
+            print(f"Нет данных для задачи с ID {task_id}")
+            return None
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Ошибка при получении данных о задаче: {e}")
         return None
 
+# Пример вызова функции
+task_id = 63062  # Замените на ID вашей задачи
+selected_fields = get_selected_fields_for_task(task_id)
 
-if __name__ == '__main__':
-    task_id = 62421
-    fields = get_task_custom_fields(task_id)
-    if fields:
-        print("Кастомные поля задачи:")
-        for key, value in fields.items():
-            print(f"{key}: {value}")
-    else:
-        print("Не удалось получить кастомные поля.")
+if selected_fields:
+    print("\nВыбранные значения для задачи:")
+    for field_name, value in selected_fields.items():
+        print(f"{field_name}: {value}")
+else:
+    print("Не удалось получить выбранные значения.")

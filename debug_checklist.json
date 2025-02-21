@@ -1,0 +1,21 @@
+{
+  "nodeId": 0,
+  "fields": {
+    "id": null,
+    "copiedId": null,
+    "entityId": null,
+    "userId": 334,
+    "createdBy": null,
+    "parentId": null,
+    "title": "",
+    "sortIndex": null,
+    "displaySortIndex": "",
+    "isComplete": false,
+    "isImportant": false,
+    "completedCount": 0,
+    "members": [],
+    "attachments": []
+  },
+  "action": [],
+  "descendants": []
+}
