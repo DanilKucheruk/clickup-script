@@ -4,7 +4,7 @@ import requests
 BITRIX24_WEBHOOK_URL = 'https://bit.paypoint.pro/rest/334/ns8ufic41u9h1nla/'
 
 # ID группы (прим. - используйте нужный ID группы)
-GROUP_ID = 278  # Замените на ID вашей группы
+GROUP_ID = 279  # Замените на ID вашей группы
 
 def get_tasks_by_group(group_id):
     url = f"{BITRIX24_WEBHOOK_URL}tasks.task.getList"

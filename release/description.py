@@ -107,9 +107,8 @@ def handle_disk_file_tags(text):
 def transfer_description(bitrix_task):
     task_id = bitrix_task.get('id', '')
     task_description = bitrix_task.get('description', '')
-    task_bitrix = f'[Задача в Bitrix](https://bit.paypoint.pro/company/personal/user/334/tasks/task/view/{task_id}/)'
 
-    task_description = task_bitrix + "\n" + bbcode_to_markdown(task_description)
+    task_description = bbcode_to_markdown(task_description)
     print("Преобразованное описание:")
     print(task_description)
     return task_description

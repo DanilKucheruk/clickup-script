@@ -8,11 +8,11 @@ from .commets import add_comment_with_mentions
 from .description import transfer_description
 from config_map_category_and_priority import BITRIX_ID_IMPORTANCE_TO_CLICKUP_PRIORITY
 from get_task_category import get_task_importance, get_task_category
-from .set_custom_field import set_custom_field
+from .set_custom_field import set_custom_fields
 # 🔹 Ваши API ключи
 BITRIX24_WEBHOOK_URL = 'https://bit.paypoint.pro/rest/334/ns8ufic41u9h1nla/'
 CLICKUP_API_KEY = 'pk_87773460_IA6NSWKD8W9PLWU480KIDV4ED6YATJNU'
-CLICKUP_LIST_ID = '901207995380'
+CLICKUP_LIST_ID = '901508672918'
 FILTER_PATTERNS = [
     r'Необходимо указать крайний срок, иначе задача не будет выполнена вовремя\.',
     r'вы добавлены наблюдателем\.',
@@ -26,7 +26,7 @@ FILTER_PATTERNS = [
 BITRIX_TO_CLICKUP_USERS = {
     # "Мария Новикова": 48467541,
     "Данил Кучерук": 87773460,
-    # "Иван Жуков" : 152444606,
+    # "Иван Жуков" : 152444604,
     # "Maria": 152420871,
     # "Ivan Zhukov": 152444606,
     # "Gena": 170510061
@@ -314,10 +314,10 @@ def map_status(bitrix_task,tags):
     
 
     MAP_STATUS_BITRIX_TO_CLICKUP = {
-        3 : "IN PROGRESS",
-        2:  "PLANNING",
-        4: "READY FOR REVIEW",
-        5: "DONE"
+        3: "to do",  # In Progress -> to do
+        2: "to do",  # Planning -> to do
+        4: "to do",  # Ready for Review -> to do
+        5: "complete"  # Done -> complete
     }
 
 
@@ -386,13 +386,13 @@ def create_clickup_task(name, description, assignees, priority,status, date_crea
         data["priority"] = priority
     try:
         response = requests.post(url, headers=headers, json=data)
-        # print(f"API Response: {response.status_code} - {response.text}")
+        print(f"API Response: {response.status_code} - {response.text}")
         response.raise_for_status()
         clickup_task_id = response.json().get('id')
-        # print(f"Задача создана в ClickUp: {clickup_task_id}")
+        print(f"Задача создана в ClickUp: {clickup_task_id}")
         return clickup_task_id
     except requests.exceptions.RequestException as e:
-        # print(f"Ошибка при создании задачи в ClickUp: {e}")
+        print(f"Ошибка при создании задачи в ClickUp: {e}")
         return None
 
 # 🔹 Создание подзадачи в ClickUp
@@ -654,7 +654,7 @@ def transfer_task(task_ids):
                     add_clickup_comment(clickup_task_id, bitrix_comments)
                     update_task_add_watchers(clickup_task_id, watchers)
                     create_checklist(bitrix_task, clickup_task_id)
-                    set_custom_field(clickup_task_id, task_id)
+                    set_custom_fields(clickup_task_id, task_id)
                     print(f"✅ Задача из Bitrix {task_id} успешно перенесена в ClickUp с ID {clickup_task_id}")
                 else:
                     print(f"❌ Не удалось создать задачу в ClickUp для Bitrix задачи {task_id}")
